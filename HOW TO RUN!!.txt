@@ -1,0 +1,5 @@
+Cara melakukan run streamlit :
+
+streamlit run nama_projek.py
+
+Ex : streamlit run landing-page.py
