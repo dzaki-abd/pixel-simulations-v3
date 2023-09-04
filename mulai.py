@@ -9,6 +9,7 @@ from skimage.feature import local_binary_pattern
 from skimage import img_as_ubyte
 import dlib
 import tempfile
+# import gradio as gr
 
 
 # Grayscale
@@ -226,10 +227,6 @@ def calculate_lbp(image):
 
 # Live Camera
 def livecamera():
-    # st.set_page_config(page_title="Streamlit WebCam App")
-    # st.title("Webcam Display Streamlit App with Face Detection")
-    # st.caption("Powered by OpenCV, Streamlit")
-    
     # Load the Haar Cascade classifier for face detection
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
@@ -548,11 +545,11 @@ def show(session_state):
         #     "K-Nearest Neighbor",
         #     "K-Means",
         # ],
-        "Face Detection": [
-            "Live Camera",
-            "Swap Face",
+        # "Face Detection": [
+        #     "Live Camera",
+        #     "Swap Face",
             
-        ],
+        # ],
         "Other": [
             "Emboss",
             "Sepia",

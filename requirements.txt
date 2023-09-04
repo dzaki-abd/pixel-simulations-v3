@@ -3,3 +3,4 @@ matplotlib
 scikit-image
 cmake
 dlib-bin
+gradio
