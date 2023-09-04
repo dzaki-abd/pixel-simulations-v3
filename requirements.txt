@@ -1,0 +1,5 @@
+opencv-python
+matplotlib
+scikit-image
+cmake
+dlib
