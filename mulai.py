@@ -230,7 +230,7 @@ def livecamera():
     # Load the Haar Cascade classifier for face detection
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     frame_placeholder = st.empty()
     # col1, col2 = st.columns(2)  # Create two columns
     # stop_button_pressed = col1.button("Berhenti")
