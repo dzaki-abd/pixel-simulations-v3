@@ -9,6 +9,8 @@ from skimage.feature import local_binary_pattern
 from skimage import img_as_ubyte
 import dlib
 import tempfile
+from streamlit_webrtc import webrtc_streamer, RTCConfiguration
+import av
 # import gradio as gr
 
 
@@ -23,6 +25,7 @@ def compute_histogram(image):
     grayscale_img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
     hist = cv2.calcHist([grayscale_img], [0], None, [256], [0, 256])
     return grayscale_img, hist
+
 
 # Histogram Equalization
 def histogram_equalization(image):
@@ -41,7 +44,6 @@ def histogram_equalization(image):
     equalized_b_hist = cv2.calcHist([b_equalized], [0], None, [256], [0, 256])
 
     return Image.fromarray(equalized_image), equalized_r_hist, equalized_g_hist, equalized_b_hist
-
 
 
 # Contrast Stretching
@@ -225,43 +227,19 @@ def calculate_lbp(image):
     lbp_image = (lbp_image * 255).astype(np.uint8)  # Mengubah nilai piksel ke kisaran 0-255
     return lbp_image
 
-# Live Camera
-def livecamera():
-    # Load the Haar Cascade classifier for face detection
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-    cap = cv2.VideoCapture(0)
-    frame_placeholder = st.empty()
-    # col1, col2 = st.columns(2)  # Create two columns
-    # stop_button_pressed = col1.button("Berhenti")
-    # start_button_pressed = col2.button("Mulai")
-    stop_button_pressed = None
+# Face Detection
+cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+class VideoProcessor:
+	def recv(self, frame):
+		frm = frame.to_ndarray(format="bgr24")
 
-    while cap.isOpened() and not stop_button_pressed:
-        ret_val, frame = cap.read()
-        if not ret_val:
-            st.write("Video Capture Ended")
-            break
-        
-        # Convert the frame to grayscale for face detection
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
-        # Detect faces in the frame
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
-        
-        # Draw rectangles around the detected faces
-        for (x, y, w, h) in faces:
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        
-        # Convert the frame back to RGB for displaying with Streamlit
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_placeholder.image(frame, channels="RGB")
-        
-        if cv2.waitKey(1) == 13 or stop_button_pressed:
-            break
-    
-    cap.release()
-    cv2.destroyAllWindows()
+		faces = cascade.detectMultiScale(cv2.cvtColor(frm, cv2.COLOR_BGR2GRAY), 1.1, 3)
+
+		for x,y,w,h in faces:
+			cv2.rectangle(frm, (x,y), (x+w, y+h), (0,255,0), 3)
+
+		return av.VideoFrame.from_ndarray(frm, format='bgr24')
 
 # Face Detection - for swapping faces
 def face_detection():
@@ -545,10 +523,10 @@ def show(session_state):
         #     "K-Nearest Neighbor",
         #     "K-Means",
         # ],
-        # "Face Detection": [
-        #     "Live Camera",
-        #     "Swap Face",
-        # ],
+        "Face Detection": [
+            "Live Camera",
+            "Swap Face",
+        ],
         "Other": [
             "Emboss",
             "Sepia",
@@ -973,12 +951,18 @@ def show(session_state):
             )
     
     elif choice == "Live Camera":
-        st.header("FD - Live Camera")
-        livecamera()
+        st.header("Face Detection - Live Camera")
+        # Tampilkan WebRTC stream
+        webrtc_streamer(key="key", video_processor_factory=VideoProcessor,
+				rtc_configuration=RTCConfiguration(
+					{"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+					)
+	    )
 
     elif choice == "Swap Face":
-        st.header("FD - Swap Face")
-        face_detection()
+        st.header("Face Detection - Swap Face")
+        st.info("Coming Soon :)")
+        # face_detection()
 
 
 if __name__ == "__main__":
