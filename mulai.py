@@ -523,10 +523,10 @@ def show(session_state):
         #     "K-Nearest Neighbor",
         #     "K-Means",
         # ],
-        "Face Detection": [
-            "Live Camera",
-            "Swap Face",
-        ],
+        # "Face Detection": [
+        #     "Live Camera",
+        #     "Swap Face",
+        # ],
         "Other": [
             "Emboss",
             "Sepia",
