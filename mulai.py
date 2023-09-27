@@ -656,6 +656,7 @@ def show(session_state):
             ) = resize_image(image)
 
             st.subheader("Interpolasi Linear")
+            st.write("Hasil ukuran akan terlihat setelah di save")
             st.image(
                 resized_img_linear,
                 caption="Hasil Interpolasi Linear",
@@ -663,6 +664,7 @@ def show(session_state):
             )
 
             st.subheader("Interpolasi Bilinear")
+            st.write("Hasil ukuran akan terlihat setelah di save")
             st.image(
                 resized_img_bilinear,
                 caption="Hasil Interpolasi Bilinear",
@@ -670,6 +672,7 @@ def show(session_state):
             )
 
             st.subheader("Interpolasi Bicubic")
+            st.write("Hasil ukuran akan terlihat setelah di save")
             st.image(
                 resized_img_bicubic,
                 caption="Hasil Interpolasi Bicubic",
