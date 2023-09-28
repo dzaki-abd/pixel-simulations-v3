@@ -11,6 +11,9 @@ def home(session_state):
         </style>
     """, unsafe_allow_html=True)
 
+    # Menampilkan gambar di tengah halaman
+    st.image("img/itenas-white.png", width=300)
+
     # Menampilkan judul di tengah halaman menggunakan st.markdown
     st.markdown("<h1 class='title-center'>PixelSimulations</h1>", unsafe_allow_html=True)
 
