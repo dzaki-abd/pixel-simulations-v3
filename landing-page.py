@@ -11,8 +11,12 @@ def home(session_state):
         </style>
     """, unsafe_allow_html=True)
 
-    # Menampilkan gambar di tengah halaman
-    st.image("img/itenas-white.png", width=300)
+    # Menampilkan 2 gambar di tengah halaman secara horizontal menggunakan st.image
+    col1, col2 = st.columns(2)
+    with col1:  # Menggunakan with untuk mengatur tata letak gambar di tengah kolom kiri
+        st.image("img/itenas-white.png", width=300)
+    with col2:  # Menggunakan with untuk mengatur tata letak gambar di tengah kolom kanan
+        st.image("img/logo-kemendikbud.png", width=100)
 
     # Menampilkan judul di tengah halaman menggunakan st.markdown
     st.markdown("<h1 class='title-center'>PixelSimulations</h1>", unsafe_allow_html=True)
