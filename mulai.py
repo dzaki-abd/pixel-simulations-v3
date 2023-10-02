@@ -11,6 +11,7 @@ import dlib
 import tempfile
 from streamlit_webrtc import webrtc_streamer, RTCConfiguration
 import av
+import mediapipe as mp
 # import gradio as gr
 
 
@@ -228,18 +229,44 @@ def calculate_lbp(image):
     return lbp_image
 
 
-# Face Detection
-cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+# # Face Detection
+# cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+# class VideoProcessor:
+# 	def recv(self, frame):
+# 		frm = frame.to_ndarray(format="bgr24")
+
+# 		faces = cascade.detectMultiScale(cv2.cvtColor(frm, cv2.COLOR_BGR2GRAY), 1.1, 3)
+
+# 		for x,y,w,h in faces:
+# 			cv2.rectangle(frm, (x,y), (x+w, y+h), (0,255,0), 3)
+
+# 		return av.VideoFrame.from_ndarray(frm, format='bgr24')
+    
+# Face Detection with MediaPipe
 class VideoProcessor:
-	def recv(self, frame):
-		frm = frame.to_ndarray(format="bgr24")
+    def __init__(self):
+        self.mp_face_detection = mp.solutions.face_detection
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.face_detection = self.mp_face_detection.FaceDetection(min_detection_confidence=0.3)
 
-		faces = cascade.detectMultiScale(cv2.cvtColor(frm, cv2.COLOR_BGR2GRAY), 1.1, 3)
+    def recv(self, frame):
+        frm = frame.to_ndarray(format="bgr24")
+        frm_rgb = cv2.cvtColor(frm, cv2.COLOR_BGR2RGB)
 
-		for x,y,w,h in faces:
-			cv2.rectangle(frm, (x,y), (x+w, y+h), (0,255,0), 3)
+        # Deteksi wajah menggunakan MediaPipe
+        results = self.face_detection.process(frm_rgb)
 
-		return av.VideoFrame.from_ndarray(frm, format='bgr24')
+        # Gambar bounding box pada wajah yang terdeteksi
+        if results.detections:
+            for detection in results.detections:
+                bboxC = detection.location_data.relative_bounding_box
+                ih, iw, _ = frm.shape
+                bbox = int(bboxC.xmin * iw), int(bboxC.ymin * ih), \
+                    int(bboxC.width * iw), int(bboxC.height * ih)
+
+                cv2.rectangle(frm, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 255, 0), 3)
+
+        return av.VideoFrame.from_ndarray(frm, format='bgr24')
 
 # Face Detection - for swapping faces
 def face_detection():
@@ -523,10 +550,11 @@ def show(session_state):
         #     "K-Nearest Neighbor",
         #     "K-Means",
         # ],
-        # "Face Detection": [
-        #     "Live Camera",
-        #     "Swap Face",
-        # ],
+        "Face Detection": [
+            "Live Camera",
+            # "Live Camera with MediaPipe",
+            "Swap Face",
+        ],
         "Other": [
             "Emboss",
             "Sepia",
@@ -953,14 +981,25 @@ def show(session_state):
                 use_column_width=True,
             )
     
+    # elif choice == "Live Camera":
+    #     st.header("Face Detection - Live Camera")
+    #     # Tampilkan WebRTC stream
+    #     webrtc_streamer(key="key", video_processor_factory=VideoProcessor,
+	# 			rtc_configuration=RTCConfiguration(
+	# 				{"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+	# 				)
+	# )
+        
     elif choice == "Live Camera":
         st.header("Face Detection - Live Camera")
         # Tampilkan WebRTC stream
-        webrtc_streamer(key="key", video_processor_factory=VideoProcessor,
-				rtc_configuration=RTCConfiguration(
-					{"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-					)
-	    )
+        webrtc_streamer(
+            key="key",
+            video_processor_factory=VideoProcessor,
+            rtc_configuration=RTCConfiguration(
+                {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+            ),
+        )
 
     elif choice == "Swap Face":
         st.header("Face Detection - Swap Face")
