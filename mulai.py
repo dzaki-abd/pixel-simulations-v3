@@ -957,9 +957,12 @@ def show(session_state):
         st.header("Face Detection - Live Camera")
         # Tampilkan WebRTC stream
         webrtc_streamer(key="key", video_processor_factory=VideoProcessor,
-				rtc_configuration=RTCConfiguration(
-					{"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-					)
+				# rtc_configuration=RTCConfiguration(
+				# 	{"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+				# 	)
+                rtc_configuration={  # Add this config
+                    "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+    }
 	    )
 
     elif choice == "Swap Face":
